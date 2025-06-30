@@ -194,8 +194,9 @@ public class TextTimeSeriesControllerTestIT extends DataApiTestIT {
                 .assertThat()
                 .body("standard-text-catalog", nullValue())
                 .body("standard-text-values", nullValue())
-                .body("regular-text-values.size()", equalTo(1))
+                .body("regular-text-values.size()", equalTo(2))
                 .body("regular-text-values[0].text-value", equalTo("newly created text value"))
+                .body("regular-text-values[1].text-value", equalTo("[No Data]"))
                 .statusCode(is(HttpServletResponse.SC_OK));
 
     }
@@ -280,7 +281,7 @@ public class TextTimeSeriesControllerTestIT extends DataApiTestIT {
                 .statusCode(is(HttpServletResponse.SC_OK));
 
         //3)retrieve and verify
-        ValidatableResponse response = given()
+        given()
                 .log().ifValidationFails(LogDetail.ALL,true)
                 .accept(Formats.JSONV2)
                 .queryParam(Controllers.OFFICE, OFFICE)
@@ -298,6 +299,8 @@ public class TextTimeSeriesControllerTestIT extends DataApiTestIT {
                 .body("standard-text-values", nullValue())
                 .body("regular-text-values.size()", equalTo(5))
                 .body("regular-text-values[0].text-value", equalTo("still great"))
+                .body("regular-text-values[1].text-value", equalTo("still great"))
+                .body("regular-text-values[2].text-value", equalTo("[No Data]"))
                 .statusCode(is(HttpServletResponse.SC_OK));
 
     }

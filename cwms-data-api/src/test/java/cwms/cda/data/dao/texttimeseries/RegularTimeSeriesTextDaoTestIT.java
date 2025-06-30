@@ -34,6 +34,7 @@ class RegularTimeSeriesTextDaoTestIT extends DataApiTestIT {
     public static final String LOAD_RESOURCE = "cwms/cda/data/sql/store_reg_text_timeseries.sql";
     public static final String DELETE_RESOURCE = "cwms/cda/data/sql/delete_reg_text_timeseries.sql";
     public static final String EXPECTED_TEXT_VALUE = "my awesome text ts";  // must match
+    public static final String EXPECTED_EMPTY_TEXT_VALUE = "[No Data]";
     // store_reg_text_timeseries.sql
 
     private static final String officeId = "SPK";
@@ -64,13 +65,25 @@ class RegularTimeSeriesTextDaoTestIT extends DataApiTestIT {
                     DSLContext dsl = getDslContext(c, officeId);
                     RegularTimeSeriesTextDao dao = new RegularTimeSeriesTextDao(dsl);
 
-                    testCreate(dao);
+                    testCreate(dao, EXPECTED_TEXT_VALUE);
+                }
+        );
+    }
+
+    @Test
+    void testCreateEmpty() throws SQLException {
+        CwmsDatabaseContainer<?> databaseLink = CwmsDataApiSetupCallback.getDatabaseLink();
+        databaseLink.connection(c -> {
+                    DSLContext dsl = getDslContext(c, officeId);
+                    RegularTimeSeriesTextDao dao = new RegularTimeSeriesTextDao(dsl);
+
+                    testCreate(dao, EXPECTED_EMPTY_TEXT_VALUE);
                 }
         );
     }
 
 
-    private void testCreate(RegularTimeSeriesTextDao dao) {
+    private void testCreate(RegularTimeSeriesTextDao dao, String expectedTextValue) {
 
 
         // store script creates from 02:30:00 - 07:00:00'
@@ -103,10 +116,9 @@ class RegularTimeSeriesTextDaoTestIT extends DataApiTestIT {
 
 
         // create/store
-        String testValue = EXPECTED_TEXT_VALUE;
         RegularTextTimeSeriesRow row = new RegularTextTimeSeriesRow.Builder()
                 .withDateTime(startInstant)
-                .withTextValue(testValue)
+                .withTextValue(expectedTextValue)
                 .build();
 
         dao.storeRows(officeId, tsId, true, Collections.singletonList(row), versionInstant);
@@ -123,7 +135,7 @@ class RegularTimeSeriesTextDaoTestIT extends DataApiTestIT {
         Assertions.assertEquals(1, regRows.size());
 
         RegularTextTimeSeriesRow first = regRows.iterator().next();
-        Assertions.assertEquals(testValue, first.getTextValue());
+        Assertions.assertEquals(expectedTextValue, first.getTextValue());
 
     }
 

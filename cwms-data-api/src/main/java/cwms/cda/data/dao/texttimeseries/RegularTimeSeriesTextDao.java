@@ -206,6 +206,11 @@ public final class RegularTimeSeriesTextDao extends JooqDao {
                           RegularTextTimeSeriesRow regularTextTimeSeriesRow,
                           Instant versionDate) {
         String textValue = regularTextTimeSeriesRow.getTextValue();
+        // Empty strings "" are treated as null by Oracle, to avoid Oracle error 20244 change the textValue
+        if (textValue.isEmpty()) {
+            textValue = "[No Data]";
+        }
+
         Instant dateTime = regularTextTimeSeriesRow.getDateTime();
 
         DATE_TABLE_TYPE dateTableType = new DATE_TABLE_TYPE();
